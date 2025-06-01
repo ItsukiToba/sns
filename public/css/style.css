@@ -1,0 +1,282 @@
+body {
+    margin-top: 0px;
+    margin-left: 0px;
+}
+input[type="text"] {
+    border-radius: 20px;
+}
+
+label {
+    display: block;
+}
+
+.inputbox {
+    text-align: center;
+}
+
+.caution {
+    color: red;
+}
+
+.btn {
+    border-radius: 9999px;
+    background-color: darkgray;
+    color: white;
+}
+
+.nav {
+    /* position: fixed; */
+    width: 100%;
+    background-color: white;
+    border-bottom: 2px solid darkgray;
+}
+
+.nav li {
+    display: inline-block;
+    list-style: none;
+    padding: 10px 50px 10px 50px;
+}
+
+.nav li:hover {
+    border: 2px solid black;
+}
+
+ul {
+    display: flex;
+    justify-content: center;
+    margin-top: 0px;
+    margin-bottom: 0px;
+}
+
+a {
+    text-decoration: none;
+    color: black;
+}
+
+.post {
+    text-align: center;
+    position: fixed;
+    top: 75%;
+    left: 20%;
+    width: 60%;
+    height: 20%;
+    background-color: whitesmoke;
+    transition: opacity 0.3s ease;
+    opacity: 0.5;
+}
+
+.post:hover {
+    opacity: 1;
+    background-color: dimgray;
+}
+
+#postMsg {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    color: #333;
+    border-radius: 10px;
+    font-size: 2em;
+    line-height: 1.5;
+    background: gainsboro;
+    border: none;
+    outline: none;
+    resize: none;
+}
+
+#postBtn {
+    position: absolute;
+    width: 10%;
+    height: 20%;
+    bottom: 5px;
+    right: 5px;
+}
+
+#postMsg:hover {
+    border: 2px solid dimgray;
+    outline:0;
+}
+
+.postData {
+    display: inline-block;
+    width: 60%;
+    height: 55px;
+    right: 20%;
+    margin-top: 15px;
+}
+
+.circle {
+    display: inline-block;
+    width:55px;
+    height: 55px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.timeline {
+    text-align: center;
+}
+
+.postData p {
+    font-size: 1em;
+    overflow-wrap: break-word;
+}
+
+.textBox {
+    display: inline-block;
+    vertical-align: top;
+    line-height: 100%;
+    width: 100px;
+    height: 100%;
+}
+
+.heart_div {
+  vertical-align: middle;
+  display: inline-block;
+  line-height: normal;
+}
+
+.heart {
+    position: relative;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.heart_div p {
+    margin-top: 0px;
+}
+
+#nameBox {
+    width: 10%;
+    padding-right: 3px;
+}
+
+#contentBox {
+    padding-left: 8px;
+    width: 70%;
+    background-color: rgb(230 230 230);
+    border-radius: 10px;
+    text-align: left;
+}
+
+.status {
+    position: absolute;
+    top: 20%;
+    left: 20%;
+    width: 60%;
+    height: 150px;
+}
+
+.statusCircle {
+    display: inline-block;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    background-color: black;
+}
+
+.statusMessage {
+    display: inline-block;
+    vertical-align: top;
+    margin-left: 30px;
+    width: 60%;
+    height: 100%;
+}
+
+.commentBox {
+    position: absolute;
+    height: 80%;
+    width: 80%;
+    background-color: rgb(220 220 220);
+    border-radius: 10px;
+}
+
+.commentBox p {
+    overflow-wrap: break-word;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.follow {
+    position: absolute;
+    width: 90%;
+    top: 65%;
+    left: 5%;
+}
+
+#follow {
+    display: block;
+}
+
+#followed {
+    display: none;
+}
+
+#follow-title {
+    border-top: 3px solid lightskyblue;
+}
+
+.follow-header {
+    position: absolute;
+    width: 90%;
+    top: 60%;
+    left: 5%;
+    height: 30px;
+    border-bottom: 2px dashed black;
+}
+
+.follow-header p {
+    display: inline-block;
+    margin-top: 0px;
+    margin-left: 10px;
+    margin-bottom: 5px;
+    user-select: none;
+}
+
+.triangle {
+    position: absolute;
+    top: 100%;
+    background: black;
+    height: calc(tan(60deg)*40px/2);
+    width: 40px;
+    clip-path: polygon(0 0, 100% 0, 50% 100%);
+    /* transform: translateY(100%); */
+}
+
+.follow-contents {
+    position: absolute;
+    margin-top: 8px;
+    left: 10%;
+    width: 80%;
+}
+
+.userInfo {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+#follow-btn {
+    position: absolute;
+    user-select: none;
+    top: 10px;
+    display: inline-block;
+    vertical-align: top;
+    width: 120px;
+    height: 35px;
+    text-align: center;
+    line-height: 35px;
+}
+
+#follow-btn[is_follow="true"] {
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+}
+
+#follow-btn[is_follow="false"] {
+    background-color: blue;
+    color: white;
+}

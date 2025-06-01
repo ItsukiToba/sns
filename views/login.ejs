@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ログイン</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <main>
+        <h1>ログイン</h1>
+        <form method="post" action="/login">
+          <div class="inputbox">
+            <label for="id">ユーザ名</label>
+            <input type="text" id="id" name="id" value="<%= id || '' %>" />
+            <% if (status === 1) { %>
+              <p class="caution">ユーザ名が適切でありません</p>
+            <% } %>
+          </div>
+          <div class="inputbox">
+            <label for="pwd">パスワード</label>
+            <input type="password" id="pwd" name="pwd" value="<%= pwd || '' %>" />
+            <% if (status === 2) { %>
+              <p class="caution">パスワードが違います</p>
+            <% } %>
+          </div>
+          <input type="submit" value="送信" />
+        </form>
+        <a href="/registration" class="btn btn--orange btn--radius">会員登録</a>
+      </main>
+    </div>
+    <script src="/js/slideshow.js"></script>
+  </body>
+</html>

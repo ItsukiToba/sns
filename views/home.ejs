@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ログイン</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header>
+    <nav class="nav">
+      <ul>
+        <li><a href="/">ホーム</a></li>
+        <li><a href="/login">ログアウト</a></li>
+      </ul>
+    </nav>
+  </header>
+  <div class="wrapper">
+    <main>
+      <div id="userId" loginId="<%= favid %>"></div>
+      <div class="timeline">
+        <% messages.forEach(post => {
+          let idx = 0;
+          fav.forEach(f => {
+            if (f.id === post.id && f.time === post.time) {
+              idx = 1;
+            }
+          });
+        %>
+          <div class="postData" id="<%= post.id %>" time="<%= post.time %>">
+            <div class="textBox" id="nameBox">
+              <p class="userName"><%= post.name %></p>
+            </div>
+            <a href="/user_status?id=<%= encodeURIComponent(post.id) %>">
+              <div class="circle">
+                <div class="icon"></div>
+              </div>
+            </a>
+            <div class="textBox" id="contentBox">
+              <p><%= post.message %></p>
+            </div>
+            <div class="heart_div">
+              <p><%= post.fav_count %></p>
+              <img class="heart" src="<%= idx === 1 ? '/img/heart.png' : '/img/heart_pre.png' %>" idx="<%= idx %>" width="25">
+            </div>
+          </div>
+        <% }); %>
+      </div>
+      <div class="post">
+        <form method="post">
+          <textarea id="postMsg" name="postMsg" rows="4" cols="40"></textarea>
+          <input class="btn" id="postBtn" type="submit" value="送信">
+        </form>
+      </div>
+    </main>
+  </div>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const images = ['/img/heart_pre.png', '/img/heart.png'];
+    let index = 0;
+
+    const favs = document.querySelectorAll('.heart');
+    const socket = io();
+
+    const userId = document.getElementById('userId').getAttribute('loginId');
+    socket.emit('register', userId);
+
+    socket.on('private_message', (msg) => {
+      if (msg === "follow") alert('フォローされました');
+      if (msg === "fav") alert('いいねされました');
+    });
+
+    socket.on('add-post', (post) => {
+      if (!(userId === post.userId)) {
+        const postData = {
+          userId: post.userId,
+          userName: post.name,
+          message: post.message,
+          time: post.time
+        };
+        const timeline = document.querySelector('.timeline');
+        timeline.prepend(createPostElement(postData));
+      }
+    });
+
+    favs.forEach(fav => {
+      fav.addEventListener('click', function () {
+        const parent = fav.closest('.postData');
+        const fav_count = fav.parentElement.querySelector('p');
+
+        const userId = parent.getAttribute('id');
+        const time = parent.getAttribute('time');
+
+        fetch(`/home_fav`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            userId: userId,
+            time: time
+          })
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            let idx = Number(fav.getAttribute('idx'));
+            idx = (idx + 1) % 2;
+            fav.setAttribute('idx', idx);
+            fav.src = images[idx];
+
+            if (idx === 1) {
+              fav_count.textContent = Number(fav_count.textContent) + 1;
+            } else {
+              fav_count.textContent = Number(fav_count.textContent) - 1;
+            }
+          } else {
+            alert('エラーが発生しました。');
+          }
+        })
+        .catch(err => {
+          console.error('通信エラー:', err);
+        });
+      });
+    });
+
+    function createPostElement(data) {
+      const { userId, userName, message, time } = data;
+
+      const postData = document.createElement('div');
+      postData.className = 'postData';
+      postData.id = userId;
+      postData.setAttribute('time', time);
+
+      // 名前表示部
+      const nameBox = document.createElement('div');
+      nameBox.className = 'textBox';
+      nameBox.id = 'nameBox';
+      const nameP = document.createElement('p');
+      nameP.className = 'userName';
+      nameP.textContent = userName;
+      nameBox.appendChild(nameP);
+      postData.appendChild(nameBox);
+
+      // アイコン
+      const userLink = document.createElement('a');
+      userLink.href = `/user_status?id=${encodeURIComponent(userId)}`;
+      const circle = document.createElement('div');
+      circle.className = 'circle';
+      const icon = document.createElement('div');
+      icon.className = 'icon';
+      circle.appendChild(icon);
+      userLink.appendChild(circle);
+      postData.appendChild(userLink);
+
+      // メッセージ
+      const contentBox = document.createElement('div');
+      contentBox.className = 'textBox';
+      contentBox.id = 'contentBox';
+      const messageP = document.createElement('p');
+      messageP.textContent = message;
+      contentBox.appendChild(messageP);
+      postData.appendChild(contentBox);
+
+      // ハートといいね数
+      const heartDiv = document.createElement('div');
+      heartDiv.className = 'heart_div';
+
+      const countP = document.createElement('p');
+      countP.textContent = '0';
+      heartDiv.appendChild(countP);
+
+      const heartImg = document.createElement('img');
+      heartImg.className = 'heart';
+      heartImg.src = '/img/heart_pre.png';
+      heartImg.setAttribute('idx', '0');
+      heartImg.width = 25;
+      heartDiv.appendChild(heartImg);
+
+      postData.appendChild(heartDiv);
+
+      return postData;
+    }
+  </script>
+</body>
+</html>

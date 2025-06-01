@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>会員登録</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <div class="wrapper">
+      <main>
+        <h1>会員登録</h1>
+        <form method="post" action="/registration">
+          <div class="inputbox">
+            <label for="id">ユーザid</label>
+            <input type="text" id="id" name="id" value="<%= id || '' %>">
+            <p class="caution"><%= errorMsg1 || '' %></p>
+          </div>
+          <div class="inputbox">
+            <label for="pwd">パスワード</label>
+            <input type="password" id="pwd" name="pwd">
+            <p class="caution"><%= errorMsg2 || '' %></p>
+          </div>
+          <input type="submit" value="送信" />
+        </form>
+      </main>
+    </div>
+    <script src="/js/slideshow.js"></script>
+  </body>
+</html>

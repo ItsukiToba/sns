@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title><%= user.name %> の情報</title>
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header>
+      <nav class="nav">
+        <ul>
+          <li><a href="/home">ホーム</a></li>
+          <li><a href="/login">ログアウト</a></li>
+        </ul>
+      </nav>
+    </header>
+    <div class="wrapper">
+      <main>
+        <div class="status">
+          <div class="statusCircle"></div>
+          <div class="statusMessage">
+            <div class="userName"><p><%= user.name %></p></div>
+            <div class="commentBox"><p><%= user.comment %></p></div>
+          </div>
+          <div
+            class="btn"
+            id="follow-btn"
+            is_follow="<%= isFollow ? 'true' : 'false' %>"
+          >
+            <%= isFollow ? 'フォロー済み' : 'フォロー' %>
+          </div>
+        </div>
+
+        <div class="follow-header">
+          <p id="follow-title">フォロー</p>
+          <p id="followed-title">フォロワー</p>
+          <div class="triangle"></div>
+        </div>
+
+        <div class="follow" id="follow">
+          <div class="follow-contents">
+            <% followList.forEach(u => { %>
+            <div class="userInfo">
+              <a href="/user_status?id=<%= encodeURIComponent(u.id) %>">
+                <div class="circle"><div class="icon"></div></div>
+              </a>
+              <div class="textBox"><p class="userName"><%= u.name %></p></div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="follow" id="followed">
+          <div class="follow-contents">
+            <% followerList.forEach(u => { %>
+            <div class="userInfo">
+              <a href="/user_status?id=<%= encodeURIComponent(u.id) %>">
+                <div class="circle"><div class="icon"></div></div>
+              </a>
+              <div class="textBox"><p class="userName"><%= u.name %></p></div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+      </main>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const followBtn = document.getElementById('follow-btn');
+      let isFollow = followBtn.dataset.isFollow === 'true';
+      const socket = io();
+
+      followBtn.addEventListener('click', () => {
+        const userId = new URLSearchParams(window.location.search).get('id');
+        socket.emit('send_to_user', {
+          targetUserId: userId,
+          message: 'follow'
+        });
+        fetch(`/user_status?followed=${encodeURIComponent(userId)}`, {
+          method: 'POST'
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            isFollow = !isFollow;
+            followBtn.textContent = isFollow ? 'フォロー済み' : 'フォロー';
+            followBtn.dataset.isFollow = isFollow;
+          } else {
+            alert('エラーが発生しました。');
+          }
+        })
+        .catch(err => {
+          console.error('通信エラー:', err);
+        });
+      });
+
+      var follow_title = document.getElementById('follow-title');
+      var followed_title = document.getElementById('followed-title');
+      var follow = document.getElementById('follow');
+      var followed = document.getElementById('followed');
+      follow_title.addEventListener('click', function() {
+        follow.style.display = 'block';
+        followed.style.display = 'none';
+        follow_title.style.borderTop = '3px solid lightskyblue';
+        followed_title.style.borderTop = '0px solid lightskyblue';
+      }, false);
+
+      followed_title.addEventListener('click', function() {
+        followed.style.display = 'block';
+        follow.style.display = 'none';
+        followed_title.style.borderTop = '3px solid lightskyblue';
+        follow_title.style.borderTop = '0px solid lightskyblue';
+      }, false);
+    </script>
+  </body>
+</html>
