@@ -1,0 +1,5 @@
+node_module/
+img_editor/build/
+img_editor/emsdk/
+img_editor/jpeg-9f/
+*.json

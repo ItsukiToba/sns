@@ -43,14 +43,27 @@
               <p><%= post.fav_count %></p>
               <img class="heart" src="<%= idx === 1 ? '/img/heart.png' : '/img/heart_pre.png' %>" idx="<%= idx %>" width="25">
             </div>
+            <div class="img_div">
+            <% if (post.path) { %>
+              <img src="/<%= post.path.replace(/\\/g, '/') %>" class="postedImg" alt="画像" />
+            <% } %>
+            </div>
           </div>
         <% }); %>
       </div>
+      <div id="output">
+        <div class="ops">
+          <button id="grayBtn">gray</button>
+          <button id="rotateBtn">rotate</button>
+        </div>
+        <img id="outputImg" />
+      </div>
       <div class="post">
-        <form method="post">
-          <textarea id="postMsg" name="postMsg" rows="4" cols="40"></textarea>
-          <input class="btn" id="postBtn" type="submit" value="送信">
-        </form>
+        <textarea id="postMsg" name="postMsg" rows="4" cols="40"></textarea>
+        <input class="btn" id="postBtn" type="submit" value="送信">
+        <img id=mastodon src="/img/mastodon.png" alt="mastodon">
+        <label for="upload" id="upload-label">image</label>
+        <input type="file" id="upload" accept="image/jpeg" />
       </div>
     </main>
   </div>
@@ -58,6 +71,7 @@
   <script>
     const images = ['/img/heart_pre.png', '/img/heart.png'];
     let index = 0;
+    let mastodonFlag = false;
 
     const favs = document.querySelectorAll('.heart');
     const socket = io();
@@ -65,24 +79,62 @@
     const userId = document.getElementById('userId').getAttribute('loginId');
     socket.emit('register', userId);
 
+    // フォローといいねの受信
     socket.on('private_message', (msg) => {
       if (msg === "follow") alert('フォローされました');
       if (msg === "fav") alert('いいねされました');
     });
 
+    // ポスト受信
     socket.on('add-post', (post) => {
       if (!(userId === post.userId)) {
         const postData = {
           userId: post.userId,
           userName: post.name,
           message: post.message,
-          time: post.time
+          time: post.time,
+          path: post.path
         };
         const timeline = document.querySelector('.timeline');
         timeline.prepend(createPostElement(postData));
       }
     });
 
+    // ポストデータ送信
+    document.getElementById('postBtn').addEventListener('click', async () => {
+      const msg = document.getElementById('postMsg').value;
+      const imgSrc = document.getElementById('outputImg').src;
+      const formData = new FormData();
+      formData.append('postMsg', msg);
+      formData.append('mastodonFlag', mastodonFlag); // もしmastodonFlagがあるなら
+      
+      if (imgSrc.startsWith('blob:') || imgSrc.startsWith('data:') || imgSrc.startsWith('http')) {  // 画像付きの場合
+        try {
+          const response = await fetch(imgSrc);
+          const blob = await response.blob();
+          formData.append('image', blob);
+        } catch (err) {
+          console.error('画像取得エラー:', err);
+        }
+      }
+      // データ送信
+      fetch('/post_data', {
+        method: 'POST',
+        body: formData,  // Content-Typeは自動で multipart/form-data になる
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.redirect) {
+          window.location.href = data.redirect;
+        } else {
+          console.log('返答:', data);
+        }
+      })
+      .catch(err => console.error('エラー:', err));
+      output.style.display = 'none';  // 画像表示を消す
+    });
+
+    // いいね数とクリック処理
     favs.forEach(fav => {
       fav.addEventListener('click', function () {
         const parent = fav.closest('.postData');
@@ -123,15 +175,63 @@
         });
       });
     });
+    
+    // 画像アップロード時処理
+    document.getElementById('upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      const output = document.getElementById('output');
+      output.style.display = 'flex';
+      if (!file) return;
 
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        document.getElementById('outputImg').src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+    
+    // グレースケール処理
+    worker = new Worker('worker.js');
+    document.getElementById('grayBtn').addEventListener('click', function() {
+      worker.postMessage({
+        imgUrl: document.getElementById('outputImg').src,
+        ops: 0
+      });  // worker: wasm処理
+    })
+    
+    // 画像回転処理
+    document.getElementById('rotateBtn').addEventListener('click', function() {
+      worker.postMessage({
+        imgUrl: document.getElementById('outputImg').src,
+        ops: 1
+      });  // worker: wasm処理
+    })
+
+    // worker終了時の処理
+    worker.onmessage = function(e) {
+      const blob = new Blob([e.data.buffer], { type: 'image/jpeg' });
+      const url = URL.createObjectURL(blob);
+      document.getElementById('outputImg').src = url;
+      worker.terminate();
+      worker = new Worker('worker.js');
+    }
+
+    // mastodonアイコンクリック処理    
+    const img = document.getElementById('mastodon');
+    img.addEventListener('click', function () {
+      img.style.opacity = mastodonFlag ? 0.5 : 1;
+      mastodonFlag = mastodonFlag ? false : true;
+    });
+    
+    // ポスト作成
     function createPostElement(data) {
-      const { userId, userName, message, time } = data;
-
+      const { userId, userName, message, time, path } = data;
+      
       const postData = document.createElement('div');
       postData.className = 'postData';
       postData.id = userId;
       postData.setAttribute('time', time);
-
+      
       // 名前表示部
       const nameBox = document.createElement('div');
       nameBox.className = 'textBox';
@@ -165,22 +265,31 @@
       // ハートといいね数
       const heartDiv = document.createElement('div');
       heartDiv.className = 'heart_div';
-
       const countP = document.createElement('p');
       countP.textContent = '0';
       heartDiv.appendChild(countP);
-
       const heartImg = document.createElement('img');
       heartImg.className = 'heart';
       heartImg.src = '/img/heart_pre.png';
       heartImg.setAttribute('idx', '0');
       heartImg.width = 25;
       heartDiv.appendChild(heartImg);
-
       postData.appendChild(heartDiv);
 
+      // 画像
+      if (path) {
+        const imgDiv = document.createElement('div');
+        imgDiv.className = 'img_div';
+        const img = document.createElement('img');
+        img.className = 'postedImg';
+        img.alt = '画像';
+        img.src = path.replace(/\\/g, '/');
+        imgDiv.appendChild(img);
+        postData.appendChild(imgDiv); // 必要に応じて任意の親要素に挿入
+      }
       return postData;
     }
   </script>
+  <script src="test.js"></script> <!-- emccで生成したJavaScript -->
 </body>
 </html>

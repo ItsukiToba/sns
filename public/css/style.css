@@ -280,3 +280,98 @@ a {
     background-color: blue;
     color: white;
 }
+
+#mastodon {
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 50px;
+    opacity: 0.5;
+}
+
+#upload-label {
+    position: absolute;
+    left: 60px;
+    bottom: 2px;
+    width: 50px;
+    height: 50px;
+    background-color: black;
+    line-height: 40px;
+    color: white;
+    /* font-weight: bold; */
+    border-radius: 8px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+/* 本物のinputは隠す */
+#upload {
+    display: none;
+}
+
+#output {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+    background: #f0f0f0;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.2);
+}
+
+.ops {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-right: 20px;
+}
+
+.ops button {
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+}
+
+#outputImg {
+    max-width: 300px;
+    max-height: 300px;
+    object-fit: contain;
+    border: 1px solid #ccc;
+}
+
+.img_div {
+    max-width: 100%;
+    max-height: 80%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    justify-content: center;
+    align-items: center;
+}
+
+.postedImg {
+    max-width: 70%;
+    max-height: 70%;
+    width: auto;
+    height: auto;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); 
+}
+
+.simple-button {
+    position: relative;
+    padding: 10px 20px;
+    background-color: white;
+    color: black;
+    border: 2px solid black;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s, color 0.3s;
+    margin-top: 20px;
+    width: 100px;
+    text-align: center;
+    left: 50%;
+    transform: translateX(-50%);
+}

@@ -73,7 +73,7 @@
 
       followBtn.addEventListener('click', () => {
         const userId = new URLSearchParams(window.location.search).get('id');
-        socket.emit('send_to_user', {
+        socket.emit('send_to_user', {  // フォロー通知
           targetUserId: userId,
           message: 'follow'
         });
@@ -82,7 +82,7 @@
         })
         .then(res => res.json())
         .then(data => {
-          if (data.success) {
+          if (data.success) {  // フォロー切り替え
             isFollow = !isFollow;
             followBtn.textContent = isFollow ? 'フォロー済み' : 'フォロー';
             followBtn.dataset.isFollow = isFollow;
